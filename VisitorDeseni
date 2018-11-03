@@ -1,0 +1,120 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace VisitorDesen.ersineneseryilmaz.deveryilmaz.alp
+{
+    //Visitor yapısı
+    interface IArabaVisitor
+    {
+        void Visit(MarkaModel1 arac);
+        void Visit(MarkaModel2 arac);
+    }
+
+    //ConcreteVisitor yapısı
+    class OzellikVisitor : IArabaVisitor
+    {
+        public void Visit(MarkaModel1 arac)
+        {
+            Console.WriteLine("MarkaModel1 ABS ve ESP donanımına sahip bir araçtır. Güvenli Sürüşler Dileriz");
+        }
+
+        public void Visit(MarkaModel2 arac)
+        {
+            Console.WriteLine("MarkaModel2 ABS bulunan fakat ESP donanımına sahip olmayan bir araçtır. Virajlarda Daha Dikkatli Olunuz.");
+        }
+    }
+
+    //ConcreteVisitor yapısı
+    class MP3Visitor : IArabaVisitor
+    {
+        public void Visit(MarkaModel1 arac)
+        {
+            Console.WriteLine("MarkaModel1: USB 'den müzik çalma var.");
+        }
+
+        public void Visit(MarkaModel2 arac)
+        {
+            Console.WriteLine("MarkaModel2: CD 'den müzik çalma var.");
+        }
+    }
+
+    //Element
+    interface IAraba
+    {
+        void Ara(string Model);
+        void Accept(IArabaVisitor arabaZiyaretcisi);
+    }
+
+    //ConcreteElement
+    class MarkaModel1 : IAraba
+    {
+        public void Ara(string Model)
+        {
+            // Kullanıcı ile etkileşimli olsun diye örnek olarak kullanıcıdan veri istenmiştir.
+            // Veritabanından veriyi kontrol edip istenirse bu tür özellikler listelenip kontrol edilebilir..
+            Console.WriteLine("Bir Araba markası ve modeli giriniz:" );
+            Model = Console.ReadLine();
+            Console.WriteLine("Marka ve Model1 girdiğiniz ---" + Model.ToUpper() + "--- özellik yükleniyor...");
+        }
+
+
+        public void Accept(IArabaVisitor arabaZiyaretcisi)
+        {
+            arabaZiyaretcisi.Visit(this);
+        }
+    }
+
+    //ConcreteElement
+    class MarkaModel2 : IAraba
+    {
+        public void Ara(string Model)
+        {
+            // Kullanıcı ile etkileşimli olsun diye örnek olarak kullanıcıdan veri istenmiştir.
+            // Veritabanından veriyi kontrol edip istenirse bu tür özellikler listelenip kontrol edilebilir..
+            Console.WriteLine("Bir Araba markası ve modeli giriniz:" );
+            Model = Console.ReadLine(); 
+            Console.WriteLine("Marka ve Model1 girdiğiniz ---" + Model.ToUpper() + "--- özellik yükleniyor...");
+            Console.WriteLine("............");
+        }
+
+        public void Accept(IArabaVisitor arabaZiyaretcisi)
+        {
+            arabaZiyaretcisi.Visit(this);
+        }
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //İlk başta sadece IAraba interface ve bununla ilgili sınıflar var diyelim....
+            //IAraba arayüzünde ise sadece ara metodu var
+
+            IAraba Model1 = new MarkaModel1();
+            IAraba Model2 = new MarkaModel2();
+            
+            Model1.Ara("ABS, ESP ve Müzik çalma özelliği " + Model1+" için Aranıyor");
+            Model2.Ara("ABS, ESP ve Müzik çalma özelliği " + Model2 + " için Aranıyor");
+
+            //Sonra IAraba arayüzünü uygulayan sınıfların bazılarına yeni özellikler ekleme ihtiyacı doğdu.
+            //Başlangıçta IAraba arayüzünü uygulayan sınıflara göre Visitor tanımlıyoruz.
+            //Daha sonra ekleyeceğimiz her özellik için bu arayüzü uygulayan ConcreteVisitor sınıflarını yazıyoruz.
+            //ABS ESP özelliklerini OzellikVisitor sınıfından oluşturalım
+
+            IArabaVisitor donanim = new OzellikVisitor();
+            Model1.Accept(donanim);
+            Model2.Accept(donanim);
+
+            //Arabalarda ilk başta kaset sonra CD sonra da USB den müzik çalma özelliği gelmiştir MP3Visitor sınıfını oluşturuyoruz.
+            IArabaVisitor MP3Visitor = new MP3Visitor();
+
+            Model1.Accept(MP3Visitor);
+            Model2.Accept(MP3Visitor);
+
+            Console.ReadKey();
+        }
+    }
+}
