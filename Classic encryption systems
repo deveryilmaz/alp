@@ -1,0 +1,916 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Windows.Forms;
+
+namespace Kripto_Proje
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+
+        }
+        //Burada Türkçede 29 harf olduğu için bir dizi oluşturdum
+        static char[] alfabe = { 'a', 'b', 'c', 'ç', 'd', 'e', 'f', 'g', 'ğ', 'h', 'ı', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'ö', 
+                                 'p','r', 's', 'ş', 't', 'u', 'ü', 'v', 'y', 'z' };
+        private void btnSifrele_Click(object sender, EventArgs e)//Sezar şifresi uygulanır
+        {
+            try
+            {
+                char[] girilenMetin = txtSifrele.Text.ToLower().Trim().ToCharArray();//girilenmetni char dizisine dönüştürdüm ve küçük harfe çevrilir
+
+                foreach (char eleman in girilenMetin)// klavyeden girilenmetnin elemanlarını aldım
+                {
+                    int i = 0;
+                    foreach (char bul in alfabe)//alfabedeki karakterleri ayrıştırdım
+                    {
+                        if (alfabe[i] == eleman)//alfabedeki bir karakter klavyeden girilen bir karakterin elemanına eşitse
+                        {
+                            txtSifreliMetin.Text += alfabe[(i + (Convert.ToInt32(txtKaydir.Text))) % 29];//cipher oluşturulan yer(Türkçede 29 harf olduğundan mod 29a göre yaptım)
+                        }
+                        i++;
+                    }
+
+                }
+            }
+            catch { MessageBox.Show("Lütfen Kaydırma Sayısını Giriniz."); }
+        }
+        private void btnCoz_Click(object sender, EventArgs e)//Sezar şifresini çözmek için algoritma tersten uygulanır
+        {
+            int i = 0;
+            char[] sifreliMetin = txtSifreliMetin.Text.Trim().ToCharArray();
+
+            foreach (char eleman in sifreliMetin)
+            {
+
+                for (int j = 0; j < 29; j++)//Tr'de 29 harf vardır
+                {
+                    if (alfabe[j] == sifreliMetin[i])//Eğer türkçe alfabeden birine şifreli metin eşitse
+                    {
+                        txtCozulmus.Text += alfabe[((j - Convert.ToInt32(txtKaydir.Text) + 29 * 29) % 29)];//29^2 kadar Kaydırma yapılabilir 
+                    }
+
+                }
+                i++;//şifrelimetin dizisini 1 artır
+            }
+        }
+
+        private void btnAnaliz_Click(object sender, EventArgs e)//frekans analizi yapılarak her harfin kullanım sıklığı bulundu
+        {
+            char[] sifreliMetin = txtSifreliMetin.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                //MessageBox.Show("Harf= " + temp + ", Frekans=%" +(frekans*100)/sifreliMetin.Length);
+                listBox1.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox1.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox1.Items.Clear();
+            listBox1.Items.AddRange(sonuc.ToArray());
+        }
+
+        private void btnTemiz1_Click(object sender, EventArgs e)
+        {
+            txtSifrele.Text = "";
+            rtxtVigenereMetin.Text = "";
+            rtxtVigenereKey.Text = "";
+            rtxtPOTP.Text = "";
+            rtxtKOTP.Text = "";
+            rtxtMetinROT.Text = "";
+            richAnahtarHill00.Text = "";
+            richDuzHill.Text = "";
+            richAnahtarHill00.Text = "";
+            richAnahtarHill01.Text = "";
+            richAnahtarHill02.Text = "";
+            richAnahtarHill10.Text = "";
+            richAnahtarHill11.Text = "";
+            richAnahtarHill12.Text = "";
+            richAnahtarHill20.Text = "";
+            richAnahtarHill21.Text = "";
+            richAnahtarHill22.Text = "";
+        }
+        void clearDGV()
+        {
+            // seçili satırları sil
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                dataGridView1.Rows.Remove(row);
+            }
+        }
+        private void btnTemiz2_Click(object sender, EventArgs e)
+        {
+            txtSifrele.Text = "";
+            rtxtVigenereMetin.Text = "";
+            rtxtVigenereKey.Text = "";
+            rtxtPOTP.Text = "";
+            rtxtKOTP.Text = "";
+            rtxtMetinROT.Text = "";
+            richAnahtarHill00.Text = "";
+            richDuzHill.Text = "";
+            richAnahtarHill00.Text = "";
+            richAnahtarHill01.Text = "";
+            richAnahtarHill02.Text = "";
+            richAnahtarHill10.Text = "";
+            richAnahtarHill11.Text = "";
+            richAnahtarHill12.Text = "";
+            richAnahtarHill20.Text = "";
+            richAnahtarHill21.Text = "";
+            richAnahtarHill22.Text = "";
+            listBox1.Items.Clear();
+            listBox2.Items.Clear();
+            listBox3.Items.Clear();
+            listBox5.Items.Clear();
+            listBox7.Items.Clear();
+            listBox8.Items.Clear();
+            listView1.Items.Clear();
+            txtCozulmus.Text = "";
+            txtSifreliMetin.Text = "";
+            rtxtVigenereCipher.Text = "";
+            rtxtVigenereDecipher.Text = "";
+            rtxtEOTP.Text = "";
+            rtxtDOTP.Text = "";
+            rtxtEncROT.Text = "";
+            rtxtDecROT.Text = "";
+            richSifreliHill.Text = "";
+            richCozulmusHill.Text = "";
+            richEncPlayfair.Text = "";
+            richDuzPlayfair.Text = "";
+            richCozulmusPlayfair.Text = "";
+            richSifreliHill.Text = "";
+            richSifreliADFGVX.Text = "";
+            richDuzADFGVX.Text = "";
+            txtAnahtarADFGVX.Text = "";
+            clearDGV();
+        }
+
+        private void txtKaydir_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            const char Delete = (char)8;
+            e.Handled = !Char.IsDigit(e.KeyChar) && e.KeyChar != Delete;
+        }
+
+        private void btnLbTemiz_Click(object sender, EventArgs e)
+        {
+            listBox1.Items.Clear();
+            listBox2.Items.Clear();
+            listBox3.Items.Clear();
+            listBox5.Items.Clear();
+            listBox7.Items.Clear();
+            listBox8.Items.Clear();
+            listView1.Items.Clear();
+        }
+        static string sifre;
+        static int Kombinasyon;
+
+        private void btnAtak_Click(object sender, EventArgs e)
+        {
+            int Count;
+            sifre = txtSifreliMetin.Text;
+            DateTime today = DateTime.Now;
+            today.ToString("yyyy-MM-dd_HH:mm:ss");
+            MessageBox.Show("Brute Force Başlama Zamanı:\t" + today);
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = 5;
+            for (Count = 0; Count <= 5; Count++)
+            {
+                Recurse(Count, 0, "");
+                progressBar1.Value = Count;
+            }
+        }
+        static void Recurse(int Lenght, int Position, string BaseString)
+        {
+            int Count = 0;
+
+            for (Count = 0; Count < alfabe.Length; Count++)
+            {
+                Kombinasyon++;
+                if (Position < Lenght - 1)
+                {
+                    Recurse(Lenght, Position + 1, BaseString + alfabe[Count]);
+                }
+                if (BaseString + alfabe[Count] == sifre)
+                {
+                    DateTime today = DateTime.Now;
+                    today.ToString("yyyy-MM-dd_HH:mm:ss");
+                    MessageBox.Show("Brute Force Bitiş Zamanı:\t" + today + "\nKombinasyon Sayısı:\t" + Kombinasyon);
+                }
+            }
+
+        }
+        string tralfabe = "abcçdefgğhıijklmnoöprsştuüvyz";
+        int metinIndex, keyIndex, yeniIndex;
+        private void btnVigenereCipher_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string girilenMetin = rtxtVigenereMetin.Text.ToLower().Trim();//girilenmetin küçük harfe çevrilir
+                string anahtarMetin = rtxtVigenereKey.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+
+                char vigenere = ' ';
+
+
+                for (int i = 0; i < girilenMetin.Length; i++)
+                {
+                    for (int j = 0; j < anahtarMetin.Length; j++)
+                    {
+                        if (i < girilenMetin.Length)
+                        {
+
+                            char metin = char.ToLower(girilenMetin[i]);
+                            char key = char.ToLower(anahtarMetin[j]);
+                            if (metin == ' ')
+                            {
+                                sifre += vigenere;
+                                i++;
+                                j--;
+                            }
+                            else if (metin == '\n')
+                            {
+                                sifre += vigenere;
+                                i++;
+                                j--;
+                            }
+                            else
+                            {
+
+                                metinIndex = tralfabe.IndexOf(metin);
+
+                                keyIndex = tralfabe.IndexOf(key);
+
+                                yeniIndex = (metinIndex + keyIndex) % 29;
+                                vigenere = tralfabe[yeniIndex];
+
+                                i++;
+
+                                rtxtVigenereCipher.Text += vigenere.ToString(); //cipher oluşturulan yer(Türkçede 29 harf olduğundan mod 29a göre yaptım)
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch { MessageBox.Show("Lütfen Anahtar Metni Giriniz."); }
+
+        }
+
+        private void btnVigenereAnaliz_Click(object sender, EventArgs e)
+        {
+            char[] sifreliMetin = rtxtVigenereCipher.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                listBox2.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox2.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox2.Items.Clear();
+            listBox2.Items.AddRange(sonuc.ToArray());
+        }
+
+        private void btnVigenereDecipher_Click(object sender, EventArgs e)
+        {
+            string sifrelenmis = rtxtVigenereCipher.Text.Trim().ToLower();//şifrelimetin
+            string anahtar = rtxtVigenereKey.Text.Trim().ToLower();//anahtarmetin
+            string cozulmus = "";
+            int sifreliIndex;
+            char sifrelikarakterler, anahtarkarakterler, yeni;
+            for (int i = 0; i < sifrelenmis.Length; i++)
+            {
+                for (int j = 0; j < anahtar.Length; j++)
+                {
+                    if (i < sifrelenmis.Length)
+                    {
+                        sifrelikarakterler = char.ToLower(sifrelenmis[i]);//şifrelimetin karakter bazında kontrol edilir
+                        anahtarkarakterler = char.ToLower(anahtar[j]);//anahtarmetin karakter bazında kontrol edilir
+
+                        if (sifrelikarakterler == ' ')//karakter boş ise
+                        {
+                            yeni = sifrelikarakterler;
+                            cozulmus = cozulmus + yeni;
+                            i++;
+                            j--;
+                        }
+                        else if (sifrelikarakterler == '\n')//karakter boş ise
+                        {
+                            yeni = sifrelikarakterler;
+                            cozulmus = cozulmus + yeni;
+                            i++;
+                            j--;
+                        }
+
+                        else
+                        {
+
+                            sifreliIndex = tralfabe.IndexOf(sifrelikarakterler);//Türkçe alfabeye göre  şifrelenmiş metnin ve anahtar metnin indexini al
+                            keyIndex = tralfabe.IndexOf(anahtarkarakterler);
+                            yeniIndex = (sifreliIndex - keyIndex) % 29;//mod al
+
+                            if (yeniIndex < 0)// eğer yeni indeksimiz 0 dan küçükse
+                            {
+                                yeni = tralfabe[yeniIndex + 29];//yeni indekse 29 kat
+                                cozulmus = cozulmus + yeni;//metni çöz
+                                i++;
+
+                            }
+                            else// yeniindex 0 dan büyük veya eşitse
+                            {
+                                yeni = tralfabe[yeniIndex];//indeksi direk al
+                                cozulmus = cozulmus + yeni;
+                                i++;
+
+                            }
+
+                        }
+                    }
+                }
+                i--;
+            }
+
+            rtxtVigenereDecipher.Clear();
+            rtxtVigenereDecipher.Text = cozulmus;//çözülmüş metni göster
+
+        }
+
+        private void btnEOTP_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string girilenMetin = rtxtPOTP.Text.ToLower().Trim();//girilenmetin küçük harfe çevrilir
+                string anahtarMetin = rtxtKOTP.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+
+                char vigenere = ' ';
+                for (int i = 0; i < girilenMetin.Length; i++)
+                {
+                    for (int j = 0; j < anahtarMetin.Length; j++)
+                    {
+                        if (i < girilenMetin.Length)
+                        {
+                            char metin = char.ToLower(girilenMetin[i]);
+                            char key = char.ToLower(anahtarMetin[j]);
+                            if (metin == ' ')
+                            {
+                                sifre += vigenere;
+                                i++;
+                                j--;
+                            }
+                            else if (metin == '\n')
+                            {
+                                sifre += vigenere;
+                                i++;
+                                j--;
+                            }
+                            else
+                            {
+
+                                metinIndex = tralfabe.IndexOf(metin);
+
+                                keyIndex = tralfabe.IndexOf(key);
+
+                                yeniIndex = (metinIndex + keyIndex) % 29;
+                                vigenere = tralfabe[yeniIndex];
+
+                                i++;
+
+                                rtxtEOTP.Text += vigenere.ToString(); //one time pad cipher oluşturulan yer(Türkçede 29 harf olduğundan mod 29a göre yaptım)
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch { MessageBox.Show("Lütfen Anahtar Metni Giriniz."); }
+
+        }
+
+        private void btnKEY_Click(object sender, EventArgs e)
+        {
+            int uzunluk = rtxtPOTP.Text.Length;//düzmetin uzunluğuna göre ;
+            Random key = new Random();
+            for (int i = 0; i < uzunluk; i++)
+            {
+                rtxtKOTP.Text += tralfabe[key.Next(tralfabe.Length)];//rastgele sayı üretilir
+            }
+        }
+
+        private void btnDOTP_Click(object sender, EventArgs e)
+        {
+            string sifrelenmis = rtxtEOTP.Text.Trim().ToLower();//şifrelimetin
+            string anahtar = rtxtKOTP.Text.Trim().ToLower();//anahtarmetin
+            string cozulmus = "";
+            int sifreliIndex;
+            char sifrelikarakterler, anahtarkarakterler, yeni;
+            for (int i = 0; i < sifrelenmis.Length; i++)
+            {
+                for (int j = 0; j < anahtar.Length; j++)
+                {
+                    if (i < sifrelenmis.Length)
+                    {
+                        sifrelikarakterler = char.ToLower(sifrelenmis[i]);//şifrelimetin karakter bazında kontrol edilir
+                        anahtarkarakterler = char.ToLower(anahtar[j]);//anahtarmetin karakter bazında kontrol edilir
+
+                        if (sifrelikarakterler == ' ')//karakter boş ise
+                        {
+                            yeni = sifrelikarakterler;
+                            cozulmus = cozulmus + yeni;
+                            i++;
+                            j--;
+                        }
+                        else if (sifrelikarakterler == '\n')//karakter boş ise
+                        {
+                            yeni = sifrelikarakterler;
+                            cozulmus = cozulmus + yeni;
+                            i++;
+                            j--;
+                        }
+
+                        else
+                        {
+
+                            sifreliIndex = tralfabe.IndexOf(sifrelikarakterler);//Türkçe alfabeye göre  şifrelenmiş metnin ve anahtar metnin indexini al
+                            keyIndex = tralfabe.IndexOf(anahtarkarakterler);
+                            yeniIndex = (sifreliIndex - keyIndex) % 29;//mod al
+
+                            if (yeniIndex < 0)// eğer yeni indeksimiz 0 dan küçükse
+                            {
+                                yeni = tralfabe[yeniIndex + 29];//yeni indekse 29 kat
+                                cozulmus = cozulmus + yeni;//metni çöz
+                                i++;
+
+                            }
+                            else// yeniindex 0 dan büyük veya eşitse
+                            {
+                                yeni = tralfabe[yeniIndex];//indeksi direk al
+                                cozulmus = cozulmus + yeni;
+                                i++;
+
+                            }
+
+                        }
+                    }
+                }
+                i--;
+            }
+
+            rtxtDOTP.Clear();
+            rtxtDOTP.Text = cozulmus;//çözülmüş metni göster
+        }
+
+        private void btnAOTP_Click(object sender, EventArgs e)
+        {
+            char[] sifreliMetin = rtxtEOTP.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                listBox3.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox3.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox3.Items.Clear();
+            listBox3.Items.AddRange(sonuc.ToArray());
+        }
+
+        private void btnEncROT_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                char[] girilenMetin = rtxtMetinROT.Text.ToLower().Trim().ToCharArray();//girilenmetni char dizisine dönüştürdüm ve küçük harfe çevrilir
+
+                foreach (char eleman in girilenMetin)// klavyeden girilenmetnin elemanlarını aldım
+                {
+                    int i = 0;
+                    foreach (char bul in alfabe)//alfabedeki karakterleri ayrıştırdım
+                    {
+                        if (alfabe[i] == eleman)//alfabedeki bir karakter klavyeden girilen bir karakterin elemanına eşitse
+                        {
+                            rtxtEncROT.Text += alfabe[(i + 13) % 29];//ROT13 oluşturulan yer(Türkçede 29 harf olduğundan mod 29a göre yaptım)
+                        }
+                        i++;
+                    }
+
+                }
+            }
+            catch { MessageBox.Show("Lütfen Düz Metni Giriniz."); }
+        }
+
+        private void btnDecROT_Click(object sender, EventArgs e)
+        {
+            int i = 0;
+            char[] sifreliMetin = rtxtEncROT.Text.Trim().ToCharArray();
+
+            foreach (char eleman in sifreliMetin)
+            {
+
+                for (int j = 0; j < 29; j++)//Tr'de 29 harf vardır
+                {
+                    if (alfabe[j] == sifreliMetin[i])//Eğer türkçe alfabeden birine şifreli metin eşitse
+                    {
+                        rtxtDecROT.Text += alfabe[((j - 13 + 29 * 29) % 29)];//29^2 kadar rot yapılabilir 
+                    }
+
+                }
+                i++;//şifrelimetin dizisini 1 artır
+            }
+        }
+
+        private void btnAnalizROT_Click(object sender, EventArgs e)
+        {
+            char[] sifreliMetin = rtxtEncROT.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                listBox5.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox5.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox5.Items.Clear();
+            listBox5.Items.AddRange(sonuc.ToArray());
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            for (int i = 0; i < 29; i++)
+            {
+                label36.Text += tralfabe[i].ToString().ToUpper() + "=" + i.ToString() + '\n';
+            }
+        }
+
+        //public void Inverse() 
+        //{
+        //    int[,] anahtar=new int[3,3];
+        //    anahtar[0, 0] = tralfabe.IndexOf(richAnahtarHill00.Text);
+        //    anahtar[0, 1] = tralfabe.IndexOf(richAnahtarHill01.Text);
+        //    anahtar[0, 2] = tralfabe.IndexOf(richAnahtarHill02.Text);
+        //    anahtar[1, 0] = tralfabe.IndexOf(richAnahtarHill10.Text);
+        //    anahtar[1, 1] = tralfabe.IndexOf(richAnahtarHill11.Text);
+        //    anahtar[1, 2] = tralfabe.IndexOf(richAnahtarHill12.Text);
+        //    anahtar[2, 0] = tralfabe.IndexOf(richAnahtarHill20.Text);
+        //    anahtar[2, 1] = tralfabe.IndexOf(richAnahtarHill21.Text);
+        //    anahtar[2, 2] = tralfabe.IndexOf(richAnahtarHill22.Text);
+        //    int[,] b = new int[3, 3];
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        for (int j = 0; j < 3; j++)
+        //        {
+        //            if (i == j)
+        //                b[i, j] = 1;
+        //            else
+        //                b[i, j] = 0;
+        //        }
+        //    }
+        //    int d, k;
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        d = anahtar[i, i];
+        //        for (int j = 0; j < 3; j++)
+        //        {
+        //            anahtar[i,j] /=d;
+        //            b[i, j] /= d;
+        //        }
+        //        for (int x = 0; x < 3; x++)
+        //        {
+        //            if (x != i)
+        //            {
+        //                k=anahtar[x,i];
+        //                for (int j = 0; j < 3; j++)
+        //                {
+        //                    anahtar[x, j] =anahtar[x, i] - (anahtar[i, j] * k);
+        //                    b[x, j] =b[x, i] - (b[i, j] * k);
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        for (int j = 0; j < 3; j++)
+        //        {
+        //            richCozulmusHill.Text += b[i, j].ToString();
+        //        }
+        //        richCozulmusHill.Text +='\n';
+        //    }
+        //}
+        private void btnEHill_Click(object sender, EventArgs e)
+        {
+            int[] sonuc = new int[3];
+            richSifreliHill.Text = string.Empty;
+            richSifreliHill.Text = "";
+            richSifreliHill.Clear();
+            string[,] anahtarMetin = new string[3, 3];
+            try
+            {
+                string girilenMetin = richDuzHill.Text.ToLower().Trim();//girilenmetin küçük harfe çevrilir
+                anahtarMetin[0, 0] = richAnahtarHill00.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[0, 1] = richAnahtarHill01.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[0, 2] = richAnahtarHill02.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[1, 0] = richAnahtarHill10.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[1, 1] = richAnahtarHill11.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[1, 2] = richAnahtarHill12.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[2, 0] = richAnahtarHill20.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[2, 1] = richAnahtarHill21.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                anahtarMetin[2, 2] = richAnahtarHill22.Text.ToLower().Trim();//anahtarmetin küçük harfe çevrilir
+                int duzmetin; int keymetin;
+                char hill = ' ';
+                int[,] inv = new int[3, 3];
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < girilenMetin.Length; j++)
+                    {
+
+                        duzmetin = tralfabe.IndexOf(girilenMetin[j]);
+
+                        keymetin = tralfabe.IndexOf(Convert.ToChar(anahtarMetin[i, j]));
+
+                        sonuc[i] += keymetin * duzmetin;
+                        sonuc[i] %= 29;//hill cipher oluşturulan yer(Türkçede 29 harf olduğundan mod 29a göre yaptım)
+                        hill = tralfabe[sonuc[i]];
+                        
+                    }
+                    richSifreliHill.Text += hill.ToString();
+                }
+                
+
+            }
+            catch { MessageBox.Show("Lütfen Anahtar Metni Giriniz."); }
+        }
+
+        private void btnAnalizHill_Click(object sender, EventArgs e)
+        {
+            char[] sifreliMetin = richSifreliHill.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                listBox7.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox7.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox7.Items.Clear();
+            listBox7.Items.AddRange(sonuc.ToArray());
+        }
+
+
+        private void btnEncPlayfair_Click(object sender, EventArgs e)
+        {
+            txtAnahtarPlayfair.Text = "playfireomubgskthcdxjnvwz";
+            string originalText = richDuzPlayfair.Text;
+            MessageBox.Show("ORDJİNAL METİNİMİZ=" + originalText);
+            string plainText = Playfair.Prepare(originalText);
+            MessageBox.Show("DÜZ METNİMİZ=" + plainText);
+            //string key = "cdefghiklmnopqrstuvwxyzab";
+            string cipherText = Playfair.Encipher(txtAnahtarPlayfair.Text, plainText);
+            MessageBox.Show("ŞİFRELİ METİN=" + cipherText);
+            richEncPlayfair.Text = cipherText;
+        }
+
+        private void btnDecrPlayfair_Click(object sender, EventArgs e)
+        {
+            String plainText = Playfair.Decipher(txtAnahtarPlayfair.Text, richEncPlayfair.Text);
+            MessageBox.Show("ORJİNAL METNİMİZ=" + plainText);
+            richCozulmusPlayfair.Text = plainText;
+        }
+
+        private void btnAnalizPlayfire_Click(object sender, EventArgs e)
+        {
+            char[] sifreliMetin = richEncPlayfair.Text.Trim().ToCharArray();
+            int frekans = 0;
+            string temp = "";
+            int i = 0;
+            for (i = 0; i < sifreliMetin.Length; i++)
+            {
+                temp = sifreliMetin[i].ToString();
+                for (int j = 0; j < sifreliMetin.Length; j++)
+                {
+                    if (temp == sifreliMetin[j].ToString())
+                    {
+                        frekans++;
+                    }
+
+                }
+                listBox8.Items.Add("Harf= " + temp + ", Frekans=%" + (frekans * 100) / sifreliMetin.Length);
+                frekans = 0;
+            }
+            IEnumerable<string> sonuc = listBox8.Items.Cast<string>().ToList().Distinct();//LINQ kullanılarak listbox değerlerimizi distinct yaptım
+            listBox8.Items.Clear();
+            listBox8.Items.AddRange(sonuc.ToArray());
+        }
+
+        private void btnDHill_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Anahtarmetindeki harflerin sayı karşılıklarına göre oluşturulmuş 3*3 matrisin tersi olup olmadığına bakılır, Tersi varsa; Anahtarmetnin tersi ile Girilenmetnin matris çarpımının mod29'a göre sonucu bulunarak şifre çözülür.",
+                "Hill Cipher Şifre Çözme",MessageBoxButtons.OK);
+            //Inverse();
+        }
+        private void btnEFoursq_Click(object sender, EventArgs e)
+        {
+                char[] duz1 = "abcdefghijklmnoprstuvwxyz".ToCharArray();
+                char[] duz2 = "abcdefghijklmnoprstuvwxyz".ToCharArray();
+                char[] key1 = "OMUBILGSAYRCDEFHJKNPTVWXZ".ToCharArray();
+                char[] key2 = "KRIPTOABCDEFGHJLMNSUVWXYZ".ToCharArray();
+                string girilenMetin = richDuzFour.Text.ToLower();//girilenmetin küçük harfe çevrilir
+                girilenMetin = girilenMetin.Replace(" ", "");
+                int k = 0; int i = 0;
+                int m = 1; //indexleri belirlemek için kullanıldı
+
+                while (k != girilenMetin.Length)
+                {
+                    if (duz1[i] == girilenMetin[k] && k % 2 == 0)
+                    {
+                        MessageBox.Show("Düz metin 1'deki " + i+" .eleman ile ");
+                        listView1.Items.Add("Düz metin 1'deki " + i + " .eleman ile ");
+                        k++; i = 0;
+                    }
+                    else if (duz2[i] == girilenMetin[k] && k % 2 == 1)
+                    {
+                        MessageBox.Show("Düz metin 2'deki " + i + " .elemanın eşleşmesinde Anahtarmetin kutusundaki karşılığı şifredir");
+                        listView1.Items.Add("Düz metin 2'deki " + i + " .elemanın eşleşmesinde Anahtarmetin kutusundaki karşılığı şifredir");
+                        k++; i = 0; m++;
+                    }
+                    i++; 
+                }
+        }
+
+        private void richDuzFour_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (Char.IsLetter(e.KeyChar) == false && e.KeyChar == '\r')
+            {
+                e.Handled = true;
+                MessageBox.Show("Sadece Harf Girebilirsiniz!");
+            } 
+        }
+
+        private void btnDFoursq_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("İşlem tersten yapıldığında, yani anahtarmetinlere göre kare oluşturulduğunda şifre çözülecektir. !","Foursquare Şifre Çözme",MessageBoxButtons.OK);
+        }
+        string[,] adfgvxMetin = new string[6, 6];
+        string[,] adfgvxTahta = new string[6, 6];
+        private void btnEncADF_Click(object sender, EventArgs e)
+        {
+            richSifreliADFGVX.Text = String.Empty;
+            MessageBox.Show("İlk aşamada girilen düz metnin ADFGVX kutusundaki ikili karşılıkları bulunur, bu sonuç şifrelimetin ilk aşama metninde gösterilmiştir...");
+            string metin = "omubilacçdefgğhıjknöprsştüvyzqwx0123";
+            string tahta = "ADFGVXADFGVXADFGVXADFGVXADFGVXADFGVX"+
+                           "ADFGVXADFGVXADFGVXADFGVXADFGVXADFGVX";
+            //string[,] adfgvxTahta = new string[1,6]{{"AAADAFAGAVAX","DADDDFDGDVDX","FAFDFFFGFVFX","GAGDGFGGGVGX","VAVDVFVGVVVX","XAXDXFXGXVXX"}};
+            char[] girilenMetin = richDuzADFGVX.Text.Trim().ToLower().ToCharArray();//girilenmetin küçük harfe çevrilir
+            int k = 0; 
+            int m = 0; //indexleri belirlemek için kullanıldı
+            for (int a = 0; a < 6; a++)
+            {
+                for (int b = 0; b < 6; b++)
+                {
+                    adfgvxTahta[a,b] = tahta[m].ToString();
+                    adfgvxMetin[a,b] = metin[m].ToString();
+                    m++;
+                }
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    if (girilenMetin[k] == ' ') 
+                    {
+                        girilenMetin[k] = girilenMetin[k + 1]; k++;
+                    }
+                    if (adfgvxMetin[i, j] == girilenMetin[k].ToString())
+                    {
+                        richSifreliADFGVX.Text += "" + adfgvxTahta[j, i] + adfgvxTahta[i, j] + "";
+                        k++; i = 0; j = 0;
+                    }
+                    if (k == girilenMetin.Length)
+                    {
+                        i = 6; j = 6;
+                        break; 
+                    }
+                    
+                }
+            }
+        }
+        
+        private void btnADFGVX_2_Click(object sender, EventArgs e)
+        {
+            string anahtar = txtAnahtarADFGVX.Text;
+            int k=0,i=0;
+            dataGridView1.ColumnCount = anahtar.Length;
+            dataGridView1.ColumnHeadersVisible = true;
+            DataGridViewCellStyle columnHeaderStyle = new DataGridViewCellStyle();
+
+            columnHeaderStyle.BackColor = Color.Beige;
+            columnHeaderStyle.Font = new Font("Verdana", 10, FontStyle.Bold);
+            dataGridView1.ColumnHeadersDefaultCellStyle = columnHeaderStyle;
+            for (; i < anahtar.Length; i++)
+            {
+                dataGridView1.Columns[i].Name = anahtar[i].ToString();
+                dataGridView1.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells; //sütun otomatik boyuta alınıyor
+            }
+            i = 0;
+            string ilkadf = richSifreliADFGVX.Text;
+            
+            i = richSifreliADFGVX.Text.Length / anahtar.Length;
+            if (richSifreliADFGVX.Text.Length % anahtar.Length != 0) i++;
+            string[,] adfgvxAnahtar = new string[i , anahtar.Length];
+            for (int a = 0; a < richSifreliADFGVX.Text.Length; a++)
+            {
+                for (int b = 0; b < anahtar.Length; b++)
+                {
+                    if (b % anahtar.Length == 0)
+                    {
+                        dataGridView1.Rows.Add();
+                    }
+                    if(k < richSifreliADFGVX.Text.Length)
+                    {
+                        adfgvxAnahtar[a, b] += ilkadf[k].ToString();
+                        dataGridView1.Rows[a].Cells[b].Value=adfgvxAnahtar[a, b];
+                        k++;
+                    }
+                    else if (k == richSifreliADFGVX.Text.Length)
+                    {
+                        a = richSifreliADFGVX.Text.Length; b = anahtar.Length;
+                        break;
+                    }
+                    
+                }
+            }
+         }
+
+        private void txtAnahtarADFGVX_MouseUp(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show("ANAHTAR METNİ GİRİP 2. AŞAMAYI BAŞLATINIZ");
+        }
+
+        private void dataGridView1_MouseUp(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show("Grid sütundaki harflerin sayı değerlerine göre küçükten büyüğe sıralandıktan sonra; İlk sütundan başlamak üzere aşağıdan yukarı okunduğunda şifre görülecektir.");
+        }
+
+        private void btnDecADFGVX_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("\tSütun sayısını belirlemek için bu şifre kırma ilk adımdır. Karakterlerin toplam sayısı tam olarak bölen bir sütun sayısı gerekli değildir, bu durumda nerede, ancak sütunları harf sayısı bir faktör sayı olacak. Bu durumda değilse bu adımı oldukça zor (ama imkansız değil).\n\tBir kez olası sütun sayılarının tespit edilmiştir, şifreyi geri sütun ve sonra tüm olası pairings kabul yazılmalıdır. Her çifti için frekans analizi digrafların üretilen ve verilen dil için frekans tabloları göre gerçekleştirilir. Düz metin dili için benzer bir frekans grafiği oluşturmak bu pairings olarak muhtemel adaylar seçilir ve bu çiftlerinden sütunlarının toplam sipariş tahmin edilebilir.\n\tÖzgün sütun sırasını sonucuna sonra şifre çözme standart monoalphabetic yerine koyma şifre göre devam eder. Bu genel olarak, aynı durumda sütunları veya kendi permütasyon sayısını yanlış tahmin ediliyor ve bu yöntem bazı varsayımları gerektirir unutmayın.","ADFGVX ŞİFRE ÇÖZME",MessageBoxButtons.OK);
+        }
+
+    }
+}
